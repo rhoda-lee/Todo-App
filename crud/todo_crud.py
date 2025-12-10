@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from models.todo_model import Todo
-from schema.todo_schema import TodoCreate
+from schema.todo_schema import TodoCreate, TodoUpdate
 
 
 class TodoCrud:
@@ -27,19 +27,21 @@ class TodoCrud:
         return result.scalar_one_or_none()
 
     @staticmethod
-    def update_todo(db: Session, todo_id: int, todo_data: TodoCreate) -> Todo | None:
+    def update_todo(db: Session, todo_id: int, todo_data: TodoUpdate) -> Todo | None:
         """Update a todo item"""
         result = db.execute(select(Todo).where(Todo.id == todo_id))
         todo = result.scalar_one_or_none()
 
         if not todo:
             return None
-        todo.title = todo_data.title
-        todo.description = todo_data.description
+        update_data = todo_data.model_dump(exclude_unset=True)
+
+        for key, value in update_data.items():
+            setattr(todo, key, value)
         db.commit()
         db.refresh(todo)
         return todo
-
+    
     @staticmethod
     def delete_todo(db: Session, todo_id: int) -> bool:
         """Delete a todo item"""
