@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database.connection import session
-from schema.todo_schema import TodoCreate, TodoResponse
+from schema.todo_schema import TodoCreate, TodoResponse, TodoUpdate
 from crud.todo_crud import TodoCrud
 
 router = APIRouter(prefix='/todos', tags=['Todos'])
@@ -33,16 +33,17 @@ def create_todo(todo: TodoCreate, db: Session = Depends(get_db)):
 @router.get('/', response_model=list[TodoResponse])
 def get_all_todos(db: Session = Depends(get_db)):
     todos = TodoCrud.get_all_todos(db)
-    return [
-        TodoResponse.model_validate({
-            "id": todo.id,
-            "title": todo.title,
-            "description": todo.description,
-            "created_at": todo.created_at,
-            "updated_at": todo.updated_at,
-        })
-        for todo in todos
-    ]
+    # return [
+    #     TodoResponse.model_validate({
+    #         "id": todo.id,
+    #         "title": todo.title,
+    #         "description": todo.description,
+    #         "created_at": todo.created_at,
+    #         "updated_at": todo.updated_at,
+    #     })
+    #     for todo in todos
+    # ]
+    return todos
 
 # Get todo by ID
 
@@ -57,8 +58,8 @@ def get_todo_by_id(todo_id: int, db: Session = Depends(get_db)):
 # Update a todo item
 
 
-@router.put('/{todo_id}', response_model=TodoResponse)
-def update_todo(todo_id: int, todo: TodoCreate, db: Session = Depends(get_db)):
+@router.patch('/{todo_id}', response_model=TodoResponse)
+def update_todo(todo_id: int, todo: TodoUpdate, db: Session = Depends(get_db)):
     updated = TodoCrud.update_todo(db, todo_id, todo)
     if not updated:
         raise HTTPException(status_code=404, detail='Todo not found')
