@@ -1,6 +1,6 @@
 from datetime import datetime
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Integer, DateTime, func, Boolean
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, Integer, DateTime, func, Boolean, ForeignKey
 from database.connection import Base, session, engine
 
 
@@ -22,6 +22,24 @@ class Todo(Base):
         onupdate=func.now(),
         server_default=func.now())
 
+    # relationship
+    subtasks: Mapped[list['Subtask']] = relationship(
+        back_populates='todo', cascade='all, delete-orphan', lazy='selectin')
+
+
+class Subtask(Base):
+    __tablename__ = 'subtasks'
+
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    is_complete: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    # foreign key
+    todo_id: Mapped[int] = mapped_column(ForeignKey(Todo.id))
+
+    # relationship
+    todo: Mapped["Todo"] = relationship(back_populates='subtasks')
+
     # def __str__(self):
     #     return f"Todo ID: {self.id}, Title: {self.title}, Description: {self.description}, Created AT: {self.created_at}"
 
@@ -30,8 +48,6 @@ class Todo(Base):
 
     # def get_id(self):
     #     return str(self.id)
-
-
 if __name__ == '__main__':
     try:
         Base.metadata.create_all(bind=engine)
