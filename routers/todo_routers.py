@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database.connection import session
-from schema.todo_schema import TodoCreate, TodoResponse, TodoUpdate
+from schema.todo_schema import TodoCreate, TodoResponse, TodoUpdate, SubtaskCreate, SubtaskUpdate,SubtaskResponse
 from crud.todo_crud import TodoCrud
 
 router = APIRouter(prefix='/todos', tags=['Todos'])
@@ -20,7 +20,7 @@ def get_db():
 
 """API Routes"""
 
-# Create a Todo Item
+# ---- TODO API ENDPOINTS ----
 
 
 @router.post('/', response_model=TodoResponse)
@@ -33,16 +33,6 @@ def create_todo(todo: TodoCreate, db: Session = Depends(get_db)):
 @router.get('/', response_model=list[TodoResponse])
 def get_all_todos(db: Session = Depends(get_db)):
     todos = TodoCrud.get_all_todos(db)
-    # return [
-    #     TodoResponse.model_validate({
-    #         "id": todo.id,
-    #         "title": todo.title,
-    #         "description": todo.description,
-    #         "created_at": todo.created_at,
-    #         "updated_at": todo.updated_at,
-    #     })
-    #     for todo in todos
-    # ]
     return todos
 
 # Get todo by ID
@@ -74,3 +64,26 @@ def delete_todo(todo_id: int, db: Session = Depends(get_db)):
     if not deleted:
         raise HTTPException(status_code=404, detail='Todo not Found')
     return deleted
+
+# ---- SUBTASK API ENDPOINT ----
+# Create a subtask for a specific Todo
+
+
+@router.post('/{todo_id}/subtasks', response_model=SubtaskResponse)
+def create_subtask(todo_id: int, subtask: SubtaskCreate, db: Session = Depends(get_db)):
+    new_subtask = TodoCrud.create_subtask(db, todo_id, subtask)
+
+    if not new_subtask:
+        raise HTTPException(status_code=404, detail="Todo parent not found")
+    return new_subtask
+
+# Update a subtask (check/uncheck)
+
+
+@router.patch('/subtasks/{subtask_id}', response_model=SubtaskResponse)
+def update_subtask(subtask_id: int, subtask: SubtaskUpdate, db: Session = Depends(get_db)):
+    updated = TodoCrud.update_subtask(db, subtask_id, subtask)
+    
+    if not updated:
+        raise HTTPException(status_code=404, detail="Subtask not found")
+    return updated
