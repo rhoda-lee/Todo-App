@@ -39,6 +39,11 @@ class TodoCrud:
 
         for key, value in update_data.items():
             setattr(todo, key, value)
+
+        if todo_data.is_complete is not None:
+            for subtask in todo.subtask:
+                subtask.is_complete = todo_data.is_complete
+        
         db.commit()
         db.refresh(todo)
         return todo
@@ -75,4 +80,29 @@ class TodoCrud:
             db.commit
 
         return subtask
+    
+    @staticmethod
+    def update_subtask(db: Session, subtask_id: int, subtask_data: SubtaskUpdate) -> Subtask | None:
+        """Update a subtask"""
+        subtask = db.get(Subtask, subtask_id)
+        if not subtask:
+            return None
+        
+        update_data = subtask_data.model_dump(exclude_unset=True)
+        for key, value in update_data.items:
+            setattr(subtask, key, value)
+        
+        parent = subtask.todo
+
+        all_done = all(t.is_complete for t in parent.subtasks)
+
+        if all_done:
+            parent.is_complete = True
+        else:
+            parent.is_complete = False
+        
+        db.commit()
+        db.refresh(subtask)
+        return subtask
+        
 
