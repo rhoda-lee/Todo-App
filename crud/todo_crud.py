@@ -1,7 +1,7 @@
 from sqlalchemy import select, asc, nulls_last
 from sqlalchemy.orm import Session
-from models.todo_model import Todo
-from schema.todo_schema import TodoCreate, TodoUpdate
+from models.todo_model import Todo, Subtask
+from schema.todo_schema import TodoCreate, TodoUpdate, SubtaskCreate, SubtaskUpdate
 
 
 class TodoCrud:
@@ -54,3 +54,25 @@ class TodoCrud:
         db.delete(todo)
         db.commit()
         return f'Todo item with id: {todo_id} has been deleted'
+    
+    # ---- SUBTASKS CRUD ----
+    @staticmethod
+    def create_subtask(db: Session, todo_id: int, subtask_data: SubtaskCreate) -> Subtask | None:
+        # checking for parent todo item
+        todo = db.get(Todo, todo_id)
+        if not todo:
+            return None
+        
+        # creating subtask
+        subtask = Subtask(**subtask_data.model_dump(), todo_id = todo_id)
+        db.add(subtask)
+        db.commit()
+        db.refresh(subtask)
+
+        # logic: if subtaks is marked completed, should not mark parent task as completed
+        if  not subtask.is_complete and todo.is_complete:
+            todo.is_complete = False
+            db.commit
+
+        return subtask
+
