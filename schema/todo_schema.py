@@ -8,6 +8,7 @@ class TodoBase(BaseModel):
     title: str
     description: str | None = None
     is_complete: bool | None = None
+    due_date: datetime | None = None
 
 
 class TodoCreate(TodoBase):
@@ -18,6 +19,7 @@ class TodoUpdate(TodoBase):
     title: str | None = None
     description: str | None = None
     is_complete: bool | None = None
+    due_date: datetime | None = None
 
 
 class TodoResponse(TodoBase):
