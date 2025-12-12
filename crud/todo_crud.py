@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, asc, nulls_last
 from sqlalchemy.orm import Session
 from models.todo_model import Todo
 from schema.todo_schema import TodoCreate, TodoUpdate
@@ -17,7 +17,8 @@ class TodoCrud:
 
     @staticmethod
     def get_all_todos(db: Session) -> list[Todo]:
-        result = db.execute(select(Todo))
+        result = db.execute(select(Todo).order_by(
+            nulls_last(asc(Todo.due_date))))
         return result.scalars().all()
 
     @staticmethod
@@ -41,7 +42,7 @@ class TodoCrud:
         db.commit()
         db.refresh(todo)
         return todo
-    
+
     @staticmethod
     def delete_todo(db: Session, todo_id: int) -> bool:
         """Delete a todo item"""
