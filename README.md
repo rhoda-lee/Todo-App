@@ -11,6 +11,8 @@ A scalable RESTful API built with **FastAPI** and **PostgreSQL**. This project d
 
 -   **Full CRUD Operations:** Create, Read (All & By ID), Update and Delete tasks.
 -   **Smart Updates:** Implementation of `PATCH` method for partial updates (specifically for toggling the `is_complete` status).
+-  **Due Dates:** Implementation of datetime sorting to prioritize tasks.
+-   **Subtasks:** Relational mapping to allow nested tasks (One-to-Many).
 -   **Data Validation:** Strict schema validation using **Pydantic V2**.
 -   **Database Persistence:** robust data storage using **PostgreSQL**.
 -   **ORM Layer:** Clean database interaction using **SQLAlchemy**.
@@ -126,8 +128,6 @@ FastAPI provides automatic, interactive documentation. Once the server is runnin
 
 This project is currently in active development. Upcoming features include:
 
--   **Due Dates:** Implementation of datetime sorting to prioritize tasks.
--   **Subtasks:** Relational mapping to allow nested tasks (One-to-Many).
 -   **Authentication:** User login and JWT token security.
 -   **Tagging System:** Many-to-Many relationships for task categorization.
 
