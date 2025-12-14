@@ -127,8 +127,6 @@ FastAPI provides automatic, interactive documentation. Once the server is runnin
 ## Future Improvements
 
 This project is currently in active development. Upcoming features include:
-
--   **Authentication:** User login and JWT token security.
 -   **Tagging System:** Many-to-Many relationships for task categorization.
 
 ## Author
